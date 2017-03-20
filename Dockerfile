@@ -23,14 +23,19 @@ RUN curl https://files.freeswitch.org/repo/deb/debian/freeswitch_archive_g0.pub 
   && apt-get install -y  --force-yes freeswitch-video-deps-most autoconf
 
 WORKDIR /usr/local/src/freeswitch
-RUN git checkout -b v1.6.6 v1.6.6
+RUN git checkout -b v1.6.9 v1.6.9
 RUN ./bootstrap.sh -j
 ADD modules.conf .
 RUN ./configure -C
 RUN make && make install
 #RUN make cd-sounds-install && make cd-moh-install
 # need external DNS for resolving host names for BMLTs
-ADD bmltvox.lua /usr/local/freeswitch/scripts
+COPY conf/ /usr/local/freeswitch/conf/
+COPY scripts/ /usr/local/freeswitch/scripts
+
+RUN touch /usr/local/freeswitch/log/freeswitch.log \
+  && echo "export TERM=xterm" >> /root/.bashrc \
+  && echo "export PATH=$PATH:/usr/local/freeswitch/bin" >> /root/.bashrc
 
 EXPOSE 5060/tcp
 EXPOSE 5060/udp
@@ -38,3 +43,5 @@ EXPOSE 5080/tcp
 EXPOSE 5080/udp
 EXPOSE 8080/tcp
 EXPOSE 16400-16410/udp
+
+ENTRYPOINT ["./entrypoint.sh"]
