@@ -22,9 +22,13 @@ while (session:ready() == true) do
   lat = postcode_lookup_data["results"][1]["geometry"]["location"]["lat"]
   lng = postcode_lookup_data["results"][1]["geometry"]["location"]["lng"]
 
-  session:speak("Searching meeting information for " .. location);
+  local daysoftheweek={"Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"}
+  local day=daysoftheweek[os.date("*t").wday]
 
-  raw_data = api:execute("curl", "http://bmlt.ncregion-na.org/main_server/client_interface/json/index.php?switcher=GetSearchResults&sort_keys=weekday_tinyint,start_time&bmlt_settings_id=1459228577&long_val=" .. lng .. "&lat_val=" .. lat .. "&geo_width=-10&search_form=1&script_name=%2Findex.php&satellite=%2Findex.php&supports_ajax=yes&no_ajax_check=yes");
+  session:speak("Searching meeting information for " .. day .. " in " .. location);
+
+  -- The root server should be selected by DNIS
+  raw_data = api:execute("curl", os.getenv("BMLT_ROOT_SERVER") .. "/client_interface/json/index.php?switcher=GetSearchResults&sort_key=distance_in_miles,start_time&long_val=" .. lng .. "&lat_val=" .. lat .. "&geo_width=-10&weekdays[]=" .. os.date("*t").wday);
 
   if raw_data ~= "" then
           bmlt_data = JSON:decode(raw_data);
@@ -37,7 +41,7 @@ while (session:ready() == true) do
           result = bmlt_data[i];
           session:speak("result number " .. i);
           session:speak(result["meeting_name"]);
-          session:speak("starts at " .. result["start_time"]);
-          session:speak("meets at " .. result["location_street"] .. " in " .. result["location_municipality"]);
+          session:speak("starts at " .. result["start_time"] .. " hours.");
+          session:speak("meets at " .. result["location_street"] .. " in " .. result["location_municipality"] .. ", " .. result["location_province"]);
   end
 end

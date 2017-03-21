@@ -30,14 +30,12 @@ RUN ./configure -C
 RUN make && make install
 #RUN make cd-sounds-install && make cd-moh-install
 # need external DNS for resolving host names for BMLTs
-COPY conf/ /usr/local/freeswitch/conf/
-COPY scripts/ /usr/local/freeswitch/scripts
+
 
 RUN touch /usr/local/freeswitch/log/freeswitch.log \
   && echo "export TERM=xterm" >> /root/.bashrc \
-  && echo "export PATH=$PATH:/usr/local/freeswitch/bin" >> /root/.bashrc
-
-RUN apt-get install nano
+  && echo "export PATH=$PATH:/usr/local/freeswitch/bin" >> /root/.bashrc \
+  && apt-get install nano
 
 EXPOSE 5060/tcp
 EXPOSE 5060/udp
@@ -45,5 +43,8 @@ EXPOSE 5080/tcp
 EXPOSE 5080/udp
 EXPOSE 8080/tcp
 EXPOSE 16400-16410/udp
+
+COPY conf/ /usr/local/freeswitch/conf/
+COPY scripts/ /usr/local/freeswitch/scripts
 
 ENTRYPOINT ["./entrypoint.sh"]
