@@ -10,7 +10,7 @@ RUN echo \
 
 RUN apt-get clean \
   && apt-get update \
-  && apt-get install -y curl git
+  && apt-get install -y curl git net-tools
 
 RUN git config --global pull.rebase true \
   && cd /usr/local/src \
