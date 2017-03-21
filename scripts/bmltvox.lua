@@ -4,6 +4,7 @@
 -- description:
 
 JSON = dofile("/usr/local/freeswitch/scripts/JSON.lua");
+api = freeswitch.API();
 
 freeswitch.consoleLog("INFO", "*** BMLT VOX***\r\n");
 
@@ -14,11 +15,16 @@ while (session:ready() == true) do
   session:speak("hello, please enter your 5 digit zip code, followed by the pound sign");
   local digits = session:getDigits(5, "#", 5000);
 
-  session:speak("Searching meeting information...");
+  postcode_lookup_raw_data = api:execute("curl", "http://maps.googleapis.com/maps/api/geocode/json?address=" .. digits)
+  freeswitch.consoleLog("INFO", postcode_lookup_raw_data)
+  postcode_lookup_data = JSON:decode(postcode_lookup_raw_data)
+  location = postcode_lookup_data["results"][1]["formatted_address"]
+  lat = postcode_lookup_data["results"][1]["geometry"]["location"]["lat"]
+  lng = postcode_lookup_data["results"][1]["geometry"]["location"]["lng"]
 
-  api = freeswitch.API();
-  raw_data = api:execute("curl", "http://bmlt.ncregion-na.org/main_server/client_interface/json/index.php?switcher=GetSearchResults&sort_keys=weekday_tinyint,start_time&bmlt_settings_id=1459228577&long_val=-78.66823950000003&lat_val=35.5648713&geo_width=-10&search_form=1&script_name=%2Findex.php&satellite=%2Findex.php&supports_ajax=yes&no_ajax_check=yes");
+  session:speak("Searching meeting information for " .. location);
 
+  raw_data = api:execute("curl", "http://bmlt.ncregion-na.org/main_server/client_interface/json/index.php?switcher=GetSearchResults&sort_keys=weekday_tinyint,start_time&bmlt_settings_id=1459228577&long_val=" .. lng .. "&lat_val=" .. lat .. "&geo_width=-10&search_form=1&script_name=%2Findex.php&satellite=%2Findex.php&supports_ajax=yes&no_ajax_check=yes");
 
   if raw_data ~= "" then
           bmlt_data = JSON:decode(raw_data);

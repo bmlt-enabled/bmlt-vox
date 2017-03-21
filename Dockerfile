@@ -37,6 +37,8 @@ RUN touch /usr/local/freeswitch/log/freeswitch.log \
   && echo "export TERM=xterm" >> /root/.bashrc \
   && echo "export PATH=$PATH:/usr/local/freeswitch/bin" >> /root/.bashrc
 
+RUN apt-get install nano
+
 EXPOSE 5060/tcp
 EXPOSE 5060/udp
 EXPOSE 5080/tcp
