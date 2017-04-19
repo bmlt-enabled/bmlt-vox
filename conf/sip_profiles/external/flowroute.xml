@@ -1,8 +1,8 @@
 <include>
     <gateway name="flowroute">
-      <param name="username" value="19734785300"/>
-      <param name="auth-username" value="00263182"/>
-      <param name="password" value="PFEgncWtDDMY"/>
+      <param name="username" value="dnis"/>
+      <param name="auth-username" value="account"/>
+      <param name="password" value="password"/>
       <param name="proxy" value="sip.flowroute.com"/>
       <param name="expire-seconds" value="600"/>
       <param name="register" value="true"/>

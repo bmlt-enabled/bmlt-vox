@@ -53,7 +53,7 @@ while (session:ready() == true) do
   freeswitch.consoleLog("INFO", callerId);
   message = urlencode(message);
   freeswitch.consoleLog("INFO", message);
-  api:execute("curl", "https://ACcb1815ec24d4d4451331adb60cc94a58:407466a81d8ff6da7185ec476a3b4736@api.twilio.com/2010-04-01/Accounts/ACcb1815ec24d4d4451331adb60cc94a58/Messages.json post To=" .. caller_id .. "&From=+19192308874&Body=" .. message)
+  api:execute("curl", "https://username:password@api.twilio.com/2010-04-01/Accounts/sid/Messages.json post To=" .. caller_id .. "&From=+dnis&Body=" .. message)
 
   session:speak("Thank you for calling, goodbye");
   session:hangup();
