@@ -47,4 +47,6 @@ EXPOSE 16400-16410/udp
 COPY conf/ /usr/local/freeswitch/conf/
 COPY scripts/ /usr/local/freeswitch/scripts
 
+RUN echo "nameserver 8.8.8.8" > /etc/resolv.conf
+
 ENTRYPOINT ["./entrypoint.sh"]

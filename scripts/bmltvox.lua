@@ -4,6 +4,7 @@
 -- description:
 
 JSON = dofile("/usr/local/freeswitch/scripts/JSON.lua");
+dofile("/usr/local/freeswitch/scripts/urlencode.lua");
 api = freeswitch.API();
 
 freeswitch.consoleLog("INFO", "*** BMLT VOX***\r\n");
@@ -25,7 +26,9 @@ while (session:ready() == true) do
   local daysoftheweek={"Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"}
   local day=daysoftheweek[os.date("*t").wday]
 
-  session:speak("Searching meeting information for " .. day .. " in " .. location);
+  local title = "Searching meeting information for " .. day .. " in " .. location;
+  local message = "Meeting information for " .. day .. " in " .. location;
+  session:speak(title);
 
   -- The root server should be selected by DNIS
   raw_data = api:execute("curl", os.getenv("BMLT_ROOT_SERVER") .. "/client_interface/json/index.php?switcher=GetSearchResults&sort_key=distance_in_miles,start_time&long_val=" .. lng .. "&lat_val=" .. lat .. "&geo_width=-10&weekdays[]=" .. os.date("*t").wday);
@@ -39,9 +42,19 @@ while (session:ready() == true) do
   for i=1,3,1
   do
           result = bmlt_data[i];
-          session:speak("result number " .. i);
-          session:speak(result["meeting_name"]);
-          session:speak("starts at " .. result["start_time"] .. " hours.");
-          session:speak("meets at " .. result["location_street"] .. " in " .. result["location_municipality"] .. ", " .. result["location_province"]);
+          --session:speak("result number " .. i);
+          --session:speak(result["meeting_name"]);
+          --session:speak("starts at " .. result["start_time"] ..  "hours.");
+          --session:speak("meets at " .. result["location_street"] .. " in " .. result["location_municipality"] .. ", " .. result["location_province"]);
+	  message = message .. "\r\n" .. result["meeting_name"] .. " " .. result["start_time"] .. " " .. result["location_street"] .. " " .. result["location_municipality"] .. ", " .. result["location_province"];
   end
+
+  local caller_id = session:getVariable("caller_id_number");
+  freeswitch.consoleLog("INFO", callerId);
+  message = urlencode(message);
+  freeswitch.consoleLog("INFO", message);
+  api:execute("curl", "https://ACcb1815ec24d4d4451331adb60cc94a58:407466a81d8ff6da7185ec476a3b4736@api.twilio.com/2010-04-01/Accounts/ACcb1815ec24d4d4451331adb60cc94a58/Messages.json post To=" .. caller_id .. "&From=+19192308874&Body=" .. message)
+
+  session:speak("Thank you for calling, goodbye");
+  session:hangup();
 end
